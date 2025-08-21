@@ -37,12 +37,11 @@ export function DuplicateWarning({
       <Card className="w-full max-w-3xl max-h-[80vh] overflow-y-auto">
         <CardHeader className="pb-4">
           <div className="flex items-center gap-3">
-            <AlertTriangle className="h-6 w-6 text-amber-500" />
-            <CardTitle className="text-xl font-semibold text-foreground">Potential Duplicate Locations Found</CardTitle>
+            <AlertTriangle className="h-6 w-6 text-blue-500" />
+            <CardTitle className="text-xl font-semibold text-foreground">Similar Locations Found</CardTitle>
           </div>
           <p className="text-sm text-muted-foreground mt-2">
-            We found {duplicates.length} similar location{duplicates.length > 1 ? "s" : ""} in the database. Please
-            review and confirm if you want to proceed with adding this new location.
+            We found {duplicates.length} similar location{duplicates.length > 1 ? "s" : ""} in our database that might be related. Please review these suggestions or continue with adding the new location.
           </p>
         </CardHeader>
 
@@ -51,15 +50,15 @@ export function DuplicateWarning({
             const distance =
               currentLocation && match.location.latitude && match.location.longitude
                 ? calculateDistance(
-                    currentLocation.latitude,
-                    currentLocation.longitude,
-                    match.location.latitude,
-                    match.location.longitude,
-                  )
+                  currentLocation.latitude,
+                  currentLocation.longitude,
+                  match.location.latitude,
+                  match.location.longitude,
+                )
                 : null
 
             return (
-              <Card key={match.location.id} className="border-l-4 border-l-amber-500">
+              <Card key={match.location.id} className="border-l-4 border-l-blue-500">
                 <CardContent className="pt-3 pb-3">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
@@ -114,10 +113,10 @@ export function DuplicateWarning({
 
           <div className="flex justify-end gap-3 pt-4 border-t">
             <Button variant="outline" onClick={onCancel}>
-              Cancel & Review
+              Review Details
             </Button>
-            <Button onClick={onConfirm} className="bg-red-600 hover:bg-red-700 text-white">
-              Confirm - Add New Location Anyway
+            <Button onClick={onConfirm} className="bg-blue-600 hover:bg-blue-700 text-white">
+              Continue - Add New Location
             </Button>
           </div>
         </CardContent>

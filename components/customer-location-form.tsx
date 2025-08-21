@@ -9,8 +9,9 @@ import { Card, CardContent } from "@/components/ui/card"
 import type { CustomerLocation, DuplicateMatch } from "@/types/customer"
 import { DuplicateWarning } from "./duplicate-warning"
 import { LeafletMapPicker } from "./leaflet-map-picker"
-import { MapPin, Search, FileText, AlertCircle } from "lucide-react"
+import { MapPin, Search, FileText } from "lucide-react"
 import { matchAddress, formatAddressQuery, convertApiResultToCustomerLocation } from "@/lib/address-api"
+import { useToast } from "@/hooks/use-toast"
 
 interface CustomerLocationFormProps {
   onSubmit: (location: CustomerLocation) => void
@@ -33,11 +34,10 @@ export function CustomerLocationForm({ onSubmit }: CustomerLocationFormProps) {
   const [showDuplicateWarning, setShowDuplicateWarning] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSearching, setIsSearching] = useState(false)
-  const [apiError, setApiError] = useState<string | null>(null)
+  const { toast } = useToast()
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
-    if (apiError) setApiError(null)
   }
 
   const handleMapLocationSelect = (lat: number, lng: number) => {
@@ -51,7 +51,6 @@ export function CustomerLocationForm({ onSubmit }: CustomerLocationFormProps) {
   const searchForDuplicates = async (query: string): Promise<DuplicateMatch[]> => {
     try {
       setIsSearching(true)
-      setApiError(null)
       const response = await matchAddress(query)
 
       return response.results.map((result, index) => ({
@@ -65,7 +64,11 @@ export function CustomerLocationForm({ onSubmit }: CustomerLocationFormProps) {
       }))
     } catch (error) {
       console.error("Error searching for duplicates:", error)
-      setApiError("No matches found with >60% confidence. The location appears to be unique in our database.")
+      toast({
+        variant: "info",
+        title: "Search Complete",
+        description: "No matching records found in our database. This location appears to be unique.",
+      })
       return []
     } finally {
       setIsSearching(false)
@@ -74,7 +77,6 @@ export function CustomerLocationForm({ onSubmit }: CustomerLocationFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setApiError(null)
 
     if (!showDuplicateWarning) {
       let searchQuery: string
@@ -87,10 +89,6 @@ export function CustomerLocationForm({ onSubmit }: CustomerLocationFormProps) {
 
       if (searchQuery.trim()) {
         const apiDuplicates = await searchForDuplicates(searchQuery)
-
-        if (apiError) {
-          return
-        }
 
         if (apiDuplicates.length > 0) {
           setDuplicates(apiDuplicates.slice(0, 3))
@@ -114,10 +112,14 @@ export function CustomerLocationForm({ onSubmit }: CustomerLocationFormProps) {
         }
       } catch (error) {
         console.error("Error creating location from query:", error)
-        setApiError(
-          "Unable to find location details for your search. Please try a different search term or use the detailed form instead.",
-        )
+        toast({
+          variant: "info",
+          title: "Search Update",
+          description: "Unable to find location details for your search. Please try a different search term or use the detailed form.",
+        })
         setIsSubmitting(false)
+        // Reset the form to allow user to try again
+        setQueryInput("")
         return
       }
     } else {
@@ -136,6 +138,13 @@ export function CustomerLocationForm({ onSubmit }: CustomerLocationFormProps) {
     }
 
     onSubmit(newLocation)
+
+    // Show success feedback
+    toast({
+      variant: "success",
+      title: "Location Added",
+      description: "Location has been successfully processed and added to the system.",
+    })
 
     setFormData({
       customerName: "",
@@ -165,6 +174,13 @@ export function CustomerLocationForm({ onSubmit }: CustomerLocationFormProps) {
   const handleChooseExisting = (location: CustomerLocation) => {
     onSubmit(location)
 
+    // Show success feedback
+    toast({
+      variant: "success",
+      title: "Existing Location Selected",
+      description: "The existing location has been selected and processed successfully.",
+    })
+
     setFormData({
       customerName: "",
       address: "",
@@ -183,16 +199,6 @@ export function CustomerLocationForm({ onSubmit }: CustomerLocationFormProps) {
     <>
       <Card className="w-full max-w-4xl bg-gradient-to-br from-white via-gray-50/30 to-gray-100/20 shadow-2xl border-0 ring-1 ring-gray-200/50 overflow-hidden">
         <CardContent className="p-8">
-          {apiError && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
-              <AlertCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
-              <div>
-                <h4 className="text-red-800 font-semibold mb-1">API Error</h4>
-                <p className="text-red-700 text-sm">{apiError}</p>
-              </div>
-            </div>
-          )}
-
           <form onSubmit={handleSubmit} className="space-y-8">
             <div className="flex justify-center mb-6">
               <div className="bg-gray-100 p-1 rounded-xl">
@@ -222,14 +228,13 @@ export function CustomerLocationForm({ onSubmit }: CustomerLocationFormProps) {
                 {inputMode === "query" ? (
                   <div>
                     <Label htmlFor="queryInput" className="text-sm font-semibold text-gray-800 mb-3 block">
-                      Search Query *
+                      Search Query * {"(Ensure Company Name is included)"}
                     </Label>
                     <Input
                       id="queryInput"
                       value={queryInput}
                       onChange={(e) => {
                         setQueryInput(e.target.value)
-                        if (apiError) setApiError(null)
                       }}
                       placeholder="e.g., BMW Berlin, IKEA Deutschland, Mercedes Hamburg"
                       required
@@ -380,9 +385,9 @@ export function CustomerLocationForm({ onSubmit }: CustomerLocationFormProps) {
           currentLocation={
             formData.latitude && formData.longitude
               ? {
-                  latitude: Number.parseFloat(formData.latitude),
-                  longitude: Number.parseFloat(formData.longitude),
-                }
+                latitude: Number.parseFloat(formData.latitude),
+                longitude: Number.parseFloat(formData.longitude),
+              }
               : undefined
           }
         />

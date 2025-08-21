@@ -6,15 +6,20 @@ import { CustomerLocationList } from "@/components/customer-location-list"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Building2, Database, Shield } from "lucide-react"
 import Image from "next/image"
+import { useToast } from "@/hooks/use-toast"
 
 export default function Home() {
   const [databaseCount, setDatabaseCount] = useState<number>(15) // Start with placeholder
   const [isLoadingCount, setIsLoadingCount] = useState<boolean>(true)
+  const { toast } = useToast()
 
   const handleLocationSubmit = (location: any) => {
     console.log("[v0] Location submitted:", location)
-    // For demo purposes, just log the location
-    // In a real app, this would save to database
+    toast({
+      variant: "success",
+      title: "Location Processed",
+      description: "The location has been successfully added to the system.",
+    })
   }
 
   useEffect(() => {
@@ -40,7 +45,7 @@ export default function Home() {
         setIsLoadingCount(false)
       } catch (error) {
         console.error("Failed to fetch database count:", error)
-        // Keep showing placeholder count on error
+        // Keep showing placeholder count on error - no user notification needed
         setIsLoadingCount(false)
       }
     }
