@@ -143,13 +143,11 @@ export function CustomerLocationForm({ onSubmit }: CustomerLocationFormProps) {
 
     // Show success feedback
     const countryCode = getVehicleRegistrationCode(newLocation.country)
-    const successMessage = countryCode
-      ? `Location has been successfully added to the system with vehicle registration code ${countryCode}.`
-      : "Location has been successfully processed and added to the system."
+    const successMessage = "This location is not present in our database, please try a more specific name."
 
     toast({
       variant: "success",
-      title: "Location Added",
+      title: "Location not present",
       description: successMessage,
     })
 
