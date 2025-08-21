@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { fetchDatabaseLocations, paginateLocations, type DatabaseLocation } from "@/lib/database-api"
 import { useToast } from "@/hooks/use-toast"
+import { getVehicleRegistrationCode } from "@/lib/vehicle-registration-codes"
 
 const PAGE_SIZE = 20 // Show 20 locations per page for optimal performance
 
@@ -184,6 +185,11 @@ export function CustomerLocationList() {
                     </div>
                     <Badge variant="outline" className="text-xs">
                       {location.ADR_LND || "Unknown"}
+                      {location.ADR_LND && getVehicleRegistrationCode(location.ADR_LND === "D" ? "Germany" : location.ADR_LND) && (
+                        <span className="ml-1 font-mono">
+                          ({getVehicleRegistrationCode(location.ADR_LND === "D" ? "Germany" : location.ADR_LND)})
+                        </span>
+                      )}
                     </Badge>
                   </div>
 
@@ -195,7 +201,14 @@ export function CustomerLocationList() {
                         <div className="text-muted-foreground">
                           {location.ADR_ORT || "Unknown city"}, {location.ADR_PLZ || "No postal code"}
                         </div>
-                        <div className="text-muted-foreground">{location.ADR_LND || "Unknown country"}</div>
+                        <div className="text-muted-foreground">
+                          {location.ADR_LND || "Unknown country"}
+                          {location.ADR_LND && getVehicleRegistrationCode(location.ADR_LND === "D" ? "Germany" : location.ADR_LND) && (
+                            <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-1 rounded">
+                              {getVehicleRegistrationCode(location.ADR_LND === "D" ? "Germany" : location.ADR_LND)}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
 

@@ -91,6 +91,11 @@ export function DuplicateWarning({
                     <div className="text-sm text-muted-foreground">
                       {match.location.address}, {match.location.city}, {match.location.postalCode},{" "}
                       {match.location.country}
+                      {match.location.countryCode && (
+                        <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-1 rounded">
+                          {match.location.countryCode}
+                        </span>
+                      )}
                       {match.location.latitude && match.location.longitude && (
                         <span className="ml-2 text-xs">
                           ({match.location.latitude.toFixed(4)}, {match.location.longitude.toFixed(4)})

@@ -1,3 +1,5 @@
+import { getVehicleRegistrationCode } from "./vehicle-registration-codes"
+
 export interface AddressApiResult {
   ADR_NAME1: string
   ADR_NAME2: string | null
@@ -52,13 +54,15 @@ export function formatAddressQuery(formData: {
 export function convertApiResultToCustomerLocation(
   result: AddressApiResult,
 ): import("@/types/customer").CustomerLocation {
+  const country = result.ADR_LND === "D" ? "Germany" : result.ADR_LND
   return {
     id: `api-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
     customerName: result.ADR_NAME1 + (result.ADR_NAME2 ? ` ${result.ADR_NAME2}` : ""),
     address: result.ADR_STRASSE,
     city: result.ADR_ORT,
     postalCode: result.ADR_PLZ,
-    country: result.ADR_LND === "D" ? "Germany" : result.ADR_LND,
+    country: country,
+    countryCode: getVehicleRegistrationCode(country) || undefined,
     latitude: result.ADR_LONGITUDE2, // Note: API has lat/lng swapped
     longitude: result.ADR_LATITUDE2,
     createdAt: new Date(),

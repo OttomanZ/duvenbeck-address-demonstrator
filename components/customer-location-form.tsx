@@ -12,6 +12,7 @@ import { LeafletMapPicker } from "./leaflet-map-picker"
 import { MapPin, Search, FileText } from "lucide-react"
 import { matchAddress, formatAddressQuery, convertApiResultToCustomerLocation } from "@/lib/address-api"
 import { useToast } from "@/hooks/use-toast"
+import { getVehicleRegistrationCode } from "@/lib/vehicle-registration-codes"
 
 interface CustomerLocationFormProps {
   onSubmit: (location: CustomerLocation) => void
@@ -130,6 +131,7 @@ export function CustomerLocationForm({ onSubmit }: CustomerLocationFormProps) {
         city: formData.city,
         postalCode: formData.postalCode,
         country: formData.country,
+        countryCode: getVehicleRegistrationCode(formData.country) || undefined,
         latitude: formData.latitude ? Number.parseFloat(formData.latitude) : undefined,
         longitude: formData.longitude ? Number.parseFloat(formData.longitude) : undefined,
         createdAt: new Date(),
@@ -140,10 +142,15 @@ export function CustomerLocationForm({ onSubmit }: CustomerLocationFormProps) {
     onSubmit(newLocation)
 
     // Show success feedback
+    const countryCode = getVehicleRegistrationCode(newLocation.country)
+    const successMessage = countryCode
+      ? `Location has been successfully added to the system with vehicle registration code ${countryCode}.`
+      : "Location has been successfully processed and added to the system."
+
     toast({
       variant: "success",
       title: "Location Added",
-      description: "Location has been successfully processed and added to the system.",
+      description: successMessage,
     })
 
     setFormData({
@@ -306,6 +313,11 @@ export function CustomerLocationForm({ onSubmit }: CustomerLocationFormProps) {
                     <div>
                       <Label htmlFor="country" className="text-sm font-semibold text-gray-800 mb-3 block">
                         Country *
+                        {formData.country && getVehicleRegistrationCode(formData.country) && (
+                          <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                            Vehicle Code: {getVehicleRegistrationCode(formData.country)}
+                          </span>
+                        )}
                       </Label>
                       <Input
                         id="country"

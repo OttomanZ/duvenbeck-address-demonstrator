@@ -1,4 +1,5 @@
 import type { CustomerLocation } from "@/types/customer"
+import { getVehicleRegistrationCode } from "./vehicle-registration-codes"
 
 // Mock data to simulate existing customer locations with realistic duplicates
 export const mockCustomerLocations: CustomerLocation[] = [
@@ -9,6 +10,7 @@ export const mockCustomerLocations: CustomerLocation[] = [
     city: "Hofheim-Wallau",
     postalCode: "65719",
     country: "Germany",
+    countryCode: "D",
     latitude: 50.0833,
     longitude: 8.4167,
     createdAt: new Date("2024-01-15"),

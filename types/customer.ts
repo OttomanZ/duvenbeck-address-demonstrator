@@ -5,6 +5,7 @@ export interface CustomerLocation {
   city: string
   postalCode: string
   country: string
+  countryCode?: string // International vehicle registration code
   latitude?: number
   longitude?: number
   createdAt: Date
